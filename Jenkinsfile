@@ -20,7 +20,7 @@ pipeline {
                 }
             }
             steps {
-                sh "jupyter-nbconvert --to python --stdout 'Long-term international migration 2.06 Area of Destination or Origin within the UK.ipynb' | ipython"
+                sh "jupyter-nbconvert --output-dir=out --execute 'Long-term international migration 2.06 Area of Destination or Origin within the UK.ipynb'"
             }
         }
         stage('Upload draftset') {
