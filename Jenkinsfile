@@ -20,7 +20,7 @@ pipeline {
                 }
             }
             steps {
-                sh "jupyter-nbconvert --output-dir=out --execute 'Long-term international migration 2.06 Area of Destination or Origin within the UK.ipynb'"
+                sh "jupyter-nbconvert --output-dir=out --ExecutePreprocessor.timeout=None --execute 'Long-term international migration 2.06 Area of Destination or Origin within the UK.ipynb'"
             }
         }
         stage('Upload draftset') {
@@ -30,8 +30,9 @@ pipeline {
                     for (def file : findFiles(glob: 'out/*.csv')) {
                         csvs.add("out/${file.name}")
                     }
-                    uploadDraftset('ONS LTIM UK Destination or Origin', csvs,
-                                   'https://github.com/ONS-OpenData/ref_migration/raw/master/columns.csv')
+                    uploadTidy(csvs,
+                                   'https://github.com/ONS-OpenData/ref_migration/raw/master/columns.csv',
+                                   'ONS LTIM UK Destination or Origin')
                 }
             }
         }
