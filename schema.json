@@ -1,0 +1,75 @@
+{
+  "@context": ["http://www.w3.org/ns/csvw", {"@language": "en"}],
+  "tables": [
+    {
+      "url": "https://ons-opendata.github.io/ref_migration/codelists/migration-directions.csv",
+      "tableSchema": "https://ons-opendata.github.io/ref_common/codelist-schema.json"
+    }, {
+      "url": "https://ons-opendata.github.io/ref_migration/codelists/occupation.csv",
+      "tableSchema": "https://ons-opendata.github.io/ref_common/codelist-schema.json"
+    }, {
+      "url": "out/tidydata2_6.csv",
+      "tableSchema": {
+        "columns": [{
+          "titles": "Geography",
+          "name": "geography",
+          "datatype": {
+            "format": "^[A-Z][0-9]{8}$"
+          },
+          "required": true
+        }, {
+          "titles": "Year",
+          "name": "year",
+          "required": true
+        }, {
+          "titles": "Area of Destination or Origin",
+          "name": "area",
+          "datatype": {
+            "format": "^[A-Z][0-9]{8}$"
+          },
+          "required": true
+        }, {
+          "titles": "Flow",
+          "name": "flow",
+          "required": true
+        }, {
+          "titles": "Measure Type",
+          "name": "measureType",
+          "datatype": {
+            "format": "^Count$"
+          }
+        }, {
+          "titles": "Value",
+          "name": "value",
+          "datatype": "number",
+          "required": true
+        }, {
+          "titles": "CI",
+          "name": "ci",
+          "datatype": "number"
+        }, {
+          "titles": "Unit",
+          "name": "unit",
+          "datatype": {
+            "base": "string",
+            "format": "^People \\(thousands\\)$"
+          },
+          "required": true
+        }, {
+          "titles": "Revision",
+          "name": "revision",
+          "required": true
+        }],
+        "foreignKeys": [{
+          "columnReference": "flow",
+          "reference": {
+            "resource": "https://ons-opendata.github.io/ref_migration/codelists/migration-directions.csv",
+            "columnReference": "notation"
+          }
+        }],
+        "primaryKey": ["geography", "year", "area", "flow",
+                       "measureType", "unit", "revision"]
+      }
+    }
+  ]
+}

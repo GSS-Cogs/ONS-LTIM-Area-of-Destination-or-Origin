@@ -23,6 +23,21 @@ pipeline {
                 sh "jupyter-nbconvert --output-dir=out --ExecutePreprocessor.timeout=None --execute 'Long-term international migration 2.06 Area of Destination or Origin within the UK.ipynb'"
             }
         }
+        stage('Test') {
+            agent {
+                docker {
+                    image 'cloudfluff/csvlint'
+                    reuseNode true
+                }
+            }
+            steps {
+                script {
+                    ansiColor('xterm') {
+                        sh "csvlint -s schema.json"
+                    }
+                }
+            }
+        }
         stage('Upload draftset') {
             steps {
                 script {
