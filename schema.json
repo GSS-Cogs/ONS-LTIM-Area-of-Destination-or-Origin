@@ -8,7 +8,7 @@
       "url": "https://ons-opendata.github.io/ref_migration/codelists/occupation.csv",
       "tableSchema": "https://ons-opendata.github.io/ref_common/codelist-schema.json"
     }, {
-      "url": "out/tidydata2_6.csv",
+      "url": "out/observations.csv",
       "tableSchema": {
         "columns": [{
           "titles": "Geography",
