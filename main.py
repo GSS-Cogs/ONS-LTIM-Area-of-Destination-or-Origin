@@ -96,15 +96,15 @@ tidy.rename(columns={'OBS': 'Value'}, inplace=True)
 # In[9]:
 
 
-tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-available',
+tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable',
                                                 'Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
 
 
 # In[10]:
 
 
-tidy['CI'] = tidy['CI'].map(lambda x: { ':' : 'not-available',
-                                                'N/A' : 'not-available'}.get(x, x))
+tidy['CI'] = tidy['CI'].map(lambda x: { ':' : 'not-applicable',
+                                                'N/A' : 'not-applicable'}.get(x, x))
 
 
 # In[11]:
