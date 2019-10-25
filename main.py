@@ -3,7 +3,7 @@
 
 # LTIM time series, 1991 to 2017 Area of Destination or Origin within the UK
 
-# In[1]:
+# In[5]:
 
 
 from gssutils import *
@@ -11,13 +11,13 @@ scraper = Scraper('https://www.ons.gov.uk/peoplepopulationandcommunity/populatio
 scraper
 
 
-# In[2]:
+# In[6]:
 
 
-tab = next(t for t in scraper.distribution().as_databaker() if t.name == 'Table 2.06')
+tab = next(t for t in scraper.distributions[0].as_databaker() if t.name == 'Table 2.06')
 
 
-# In[3]:
+# In[7]:
 
 
 cell = tab.filter('Year')
@@ -27,7 +27,7 @@ Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str or 'Significant C
 Flow = cell.fill(DOWN).one_of(['Inflow', 'Outflow', 'Balance'])
 
 
-# In[4]:
+# In[8]:
 
 
 observations = cell.shift(RIGHT).fill(DOWN).filter('Estimate').expand(RIGHT).filter('Estimate')                 .fill(DOWN).is_not_blank().is_not_whitespace() 
@@ -38,7 +38,7 @@ observations = observations - original_estimates - Str
 CI = observations.shift(RIGHT)
 
 
-# In[5]:
+# In[9]:
 
 
 csObs = ConversionSegment(observations, [
@@ -55,7 +55,7 @@ csObs = ConversionSegment(observations, [
 tidy_revised = csObs.topandas()
 
 
-# In[6]:
+# In[10]:
 
 
 csRevs = ConversionSegment(original_estimates, [
@@ -71,13 +71,13 @@ csRevs = ConversionSegment(original_estimates, [
 orig_estimates = csRevs.topandas()
 
 
-# In[7]:
+# In[11]:
 
 
 tidy = pd.concat([tidy_revised, orig_estimates], axis=0, join='outer', ignore_index=True, sort=False)
 
 
-# In[8]:
+# In[12]:
 
 
 import numpy as np
@@ -93,21 +93,21 @@ tidy.rename(columns={'OBS': 'Value'}, inplace=True)
 #                             else 'ERR')
 
 
-# In[9]:
+# In[13]:
 
 
 tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable',
                                                 'Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
 
 
-# In[10]:
+# In[14]:
 
 
 tidy['CI'] = tidy['CI'].map(lambda x: { ':' : 'not-applicable',
                                                 'N/A' : 'not-applicable'}.get(x, x))
 
 
-# In[11]:
+# In[15]:
 
 
 for col in tidy.columns:
@@ -117,7 +117,7 @@ for col in tidy.columns:
         display(tidy[col].cat.categories)
 
 
-# In[12]:
+# In[16]:
 
 
 tidy['Geography'] = tidy['Geography'].cat.rename_categories({
@@ -134,19 +134,19 @@ tidy = tidy[['Geography', 'Year', 'Area of Destination or Origin', 'Flow',
               'Measure Type','Value', 'CI','Unit', 'Revision', 'IPS Marker']]
 
 
-# In[13]:
+# In[17]:
 
 
 # tidy['Year'] = tidy['Year'].apply(lambda x: pd.to_numeric(x, downcast='integer'))
 
 
-# In[14]:
+# In[18]:
 
 
 # tidy['Year'] = tidy['Year'].astype(int)
 
 
-# In[15]:
+# In[19]:
 
 
 from pathlib import Path
@@ -156,7 +156,7 @@ destinationFolder.mkdir(exist_ok=True, parents=True)
 tidy.to_csv(destinationFolder / ('observations.csv'), index = False)
 
 
-# In[16]:
+# In[20]:
 
 
 from gssutils.metadata import THEME
