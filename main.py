@@ -18,8 +18,7 @@ tab = next(t for t in scraper.distributions[0].as_databaker() if t.name == 'Tabl
 cell = tab.filter('Year')
 cell.assert_one()
 Area = cell.shift(0,2).fill(RIGHT).is_not_blank().is_not_whitespace()
-#Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str or 'Significant Change?' not in x.value)
-Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str)
+Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str or 'Significant Change?' not in x.value)
 Flow = cell.fill(DOWN).one_of(['Inflow', 'Outflow', 'Balance'])
 
 
@@ -95,7 +94,7 @@ tidy.rename(columns={'OBS': 'Value'}, inplace=True)
 # Metadata at bottom of sheet is being pulled in as well as the observations. Don't fully understand how to solve
 # this issue at the moment so have just removed the row for now. LPerryman 
 tidy = tidy[tidy.DATAMARKER != 'Statistically Significant Decrease']
-#tidy
+tidy
 
 # %%
 #tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable','Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
@@ -168,3 +167,5 @@ with open(destinationFolder / 'dataset.trig', 'wb') as metadata:
 csvw = CSVWMetadata('https://gss-cogs.github.io/ref_migration/')
 csvw.create(destinationFolder / 'observations.csv', destinationFolder / 'observations.csv-schema.json')
 
+
+# %%
