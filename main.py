@@ -1,36 +1,32 @@
 #!/usr/bin/env python
 # coding: utf-8
+# %%
 
 # LTIM time series, 1991 to 2017 Area of Destination or Origin within the UK
 
-# In[5]:
-
-
+# %%
 from gssutils import *
-scraper = Scraper('https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/'                   'internationalmigration/datasets/longterminternationalmigrationareaofdestinationororiginwithintheuktable206')
+scraper = Scraper('https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration/datasets/longterminternationalmigrationareaofdestinationororiginwithintheuktable206')
 scraper
 
 
-# In[6]:
-
-
+# %%
 tab = next(t for t in scraper.distributions[0].as_databaker() if t.name == 'Table 2.06')
 
 
-# In[7]:
-
-
+# %%
 cell = tab.filter('Year')
 cell.assert_one()
 Area = cell.shift(0,2).fill(RIGHT).is_not_blank().is_not_whitespace()
-Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str or 'Significant Change?' not in x.value)
+#Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str or 'Significant Change?' not in x.value)
+Year = cell.expand(DOWN).filter(lambda x: type(x.value) != str)
 Flow = cell.fill(DOWN).one_of(['Inflow', 'Outflow', 'Balance'])
 
 
-# In[8]:
+# %%
 
 
-observations = cell.shift(RIGHT).fill(DOWN).filter('Estimate').expand(RIGHT).filter('Estimate')                 .fill(DOWN).is_not_blank().is_not_whitespace() 
+observations = cell.shift(RIGHT).fill(DOWN).filter('Estimate').expand(RIGHT).filter('Estimate').fill(DOWN).is_not_blank().is_not_whitespace()#.filter(lambda x: type(x.value) != str) 
 Str =  tab.filter(contains_string('Significant Change?')).fill(RIGHT).is_not_number()
 observations = observations - (tab.excel_ref('A1').expand(DOWN).expand(RIGHT).filter(contains_string('Significant Change')))
 original_estimates = tab.filter(contains_string('Original Estimates')).fill(DOWN).is_number()
@@ -38,7 +34,7 @@ observations = observations - original_estimates - Str
 CI = observations.shift(RIGHT)
 
 
-# In[9]:
+# %%
 
 
 csObs = ConversionSegment(observations, [
@@ -55,7 +51,7 @@ csObs = ConversionSegment(observations, [
 tidy_revised = csObs.topandas()
 
 
-# In[10]:
+# %%
 
 
 csRevs = ConversionSegment(original_estimates, [
@@ -71,13 +67,13 @@ csRevs = ConversionSegment(original_estimates, [
 orig_estimates = csRevs.topandas()
 
 
-# In[11]:
+# %%
 
 
 tidy = pd.concat([tidy_revised, orig_estimates], axis=0, join='outer', ignore_index=True, sort=False)
 
 
-# In[12]:
+# %%
 
 
 import numpy as np
@@ -91,25 +87,28 @@ tidy.rename(columns={'OBS': 'Value'}, inplace=True)
 #                             if (x == ':') | (x == 'N/A') 
 #                             else int(x[:-2]) if x.endswith('.0') 
 #                             else 'ERR')
+#tidy['IPS Marker'].unique
 
 
-# In[13]:
+
+# %%
+# Metadata at bottom of sheet is being pulled in as well as the observations. Don't fully understand how to solve
+# this issue at the moment so have just removed the row for now. LPerryman 
+tidy = tidy[tidy.DATAMARKER != 'Statistically Significant Decrease']
+#tidy
+
+# %%
+#tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable','Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
+
+tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable'}.get(x, x))
 
 
-tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable',
-                                                'Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
-
-
-# In[14]:
-
-
+# %%
 tidy['CI'] = tidy['CI'].map(lambda x: { ':' : 'not-applicable',
                                                 'N/A' : 'not-applicable'}.get(x, x))
 
 
-# In[15]:
-
-
+# %%
 for col in tidy.columns:
     if col not in ['Value', 'Year', 'CI']:
         tidy[col] = tidy[col].astype('category')
@@ -117,7 +116,7 @@ for col in tidy.columns:
         display(tidy[col].cat.categories)
 
 
-# In[16]:
+# %%
 
 
 tidy['Geography'] = tidy['Geography'].cat.rename_categories({
@@ -134,19 +133,19 @@ tidy = tidy[['Geography', 'Year', 'Area of Destination or Origin', 'Flow',
               'Measure Type','Value', 'CI','Unit', 'Revision', 'IPS Marker']]
 
 
-# In[17]:
+# %%
 
 
 # tidy['Year'] = tidy['Year'].apply(lambda x: pd.to_numeric(x, downcast='integer'))
 
 
-# In[18]:
+# %%
 
 
 # tidy['Year'] = tidy['Year'].astype(int)
 
 
-# In[19]:
+# %%
 
 
 from pathlib import Path
@@ -156,7 +155,7 @@ destinationFolder.mkdir(exist_ok=True, parents=True)
 tidy.to_csv(destinationFolder / ('observations.csv'), index = False)
 
 
-# In[20]:
+# %%
 
 
 from gssutils.metadata import THEME
@@ -168,10 +167,4 @@ with open(destinationFolder / 'dataset.trig', 'wb') as metadata:
     
 csvw = CSVWMetadata('https://gss-cogs.github.io/ref_migration/')
 csvw.create(destinationFolder / 'observations.csv', destinationFolder / 'observations.csv-schema.json')
-
-
-# In[ ]:
-
-
-
 
