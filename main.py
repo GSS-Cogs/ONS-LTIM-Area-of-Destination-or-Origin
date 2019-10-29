@@ -128,15 +128,13 @@ tidy = tidy[['Area of Destination or Origin', 'Year', 'Flow',
 
 
 # %%
-
 tidy.head()
 # tidy['Year'] = tidy['Year'].apply(lambda x: pd.to_numeric(x, downcast='integer'))
 
 
 # %%
-
-
-# tidy['Year'] = tidy['Year'].astype(int)
+tidy['Year'] = tidy['Year'].round(0).astype(int)
+#tidy['Year']
 
 
 # %%
