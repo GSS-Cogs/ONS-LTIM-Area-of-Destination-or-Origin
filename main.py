@@ -67,20 +67,17 @@ orig_estimates = csRevs.topandas()
 
 
 # %%
-
-
 tidy = pd.concat([tidy_revised, orig_estimates], axis=0, join='outer', ignore_index=True, sort=False)
 
 
 # %%
-
-
 import numpy as np
 # tidy['OBS'].replace('', np.nan, inplace=True)
 # tidy.dropna(subset=['OBS'], inplace=True)
 # if 'DATAMARKER' in tidy.columns:
 #     tidy.drop(columns=['DATAMARKER'], inplace=True)
 tidy.rename(columns={'OBS': 'Value'}, inplace=True)
+#tidy.rename(columns={'Flow': 'Migration Flow'}, inplace=True)
 # tidy['Value'] = tidy['Value'].astype(int)
 # tidy['CI'] = tidy['CI'].map(lambda x:'' 
 #                             if (x == ':') | (x == 'N/A') 
@@ -88,13 +85,11 @@ tidy.rename(columns={'OBS': 'Value'}, inplace=True)
 #                             else 'ERR')
 #tidy['IPS Marker'].unique
 
-
-
 # %%
 # Metadata at bottom of sheet is being pulled in as well as the observations. Don't fully understand how to solve
 # this issue at the moment so have just removed the row for now. LPerryman 
 tidy = tidy[tidy.DATAMARKER != 'Statistically Significant Decrease']
-tidy
+#tidy
 
 # %%
 #tidy['IPS Marker'] = tidy['DATAMARKER'].map(lambda x: { ':' : 'not-applicable','Statistically Significant Decrease' : 'statistically-significant-decrease'}.get(x, x))
@@ -128,13 +123,13 @@ tidy['Flow'] = tidy['Flow'].cat.rename_categories({
     'Outflow': 'outflow'
 })
 
-tidy = tidy[['Geography', 'Year', 'Area of Destination or Origin', 'Flow',
+tidy = tidy[['Area of Destination or Origin', 'Year', 'Flow',
               'Measure Type','Value', 'CI','Unit', 'Revision', 'IPS Marker']]
 
 
 # %%
 
-
+tidy.head()
 # tidy['Year'] = tidy['Year'].apply(lambda x: pd.to_numeric(x, downcast='integer'))
 
 
